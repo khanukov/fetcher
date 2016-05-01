@@ -1,5 +1,6 @@
 $(function(){
   var app = {};
+  login=0;
   app = {
     init: function(){
         $('body').on('change', '.checkboxed input', function(){
@@ -13,8 +14,62 @@ $(function(){
             labelField: 'name',
             searchField: ['name']
         });
-        $('.modal-auth input').on('blur', app.checkAuthFormInputs);
-        app.accordionHeadingClass();
+        
+        $('.auth-btn-ent').on('click',function(){
+          $.post("home?check", { ans:'ajax',ent: "1", email: $('#auth-email').val(), pass: $('#auth-pass').val()})
+          .done(function( data ) {
+            if (data==1) {
+              login=1;
+            }
+          });
+          if (login==0) {
+            $('#auth-email').css('border-color','red');
+            $('#auth-pass').css('border-color','red');
+            
+            $('.modal-content').animate({left:'20px'},100);
+            $('.modal-content').animate({left:'-20px'},100);
+            $('.modal-content').animate({left:'20px'},100);
+            $('.modal-content').animate({left:'-20px'},100);
+            $('.modal-content').animate({left:'0px'},100);
+            return false;
+          }
+        });
+        $('.auth-to-reg').on('click',function(){
+          $('#auth-email').css('border-color','');
+          $('#auth-pass').css('border-color','');
+          $('.fetch-ent').hide();
+          $('.fetch-reg').show();
+        });
+        $('.auth-to-ent').on('click',function(){
+          $('#auth-email').css('border-color','');
+          $('#auth-pass').css('border-color','');
+          $('.fetch-ent').show();
+          $('.fetch-reg').hide();
+        });
+
+        $('.auth-btn-reg').on('click',function(){
+          if ($('#auth-pass').val()!=$('#auth-pass2').val()) {
+            $('#auth-pass').css('border-color','red');
+            $('#auth-pass2').css('border-color','red');
+            return false;
+          }
+          $.post("home?check", { ans:'ajax',reg: "1", email: $('#auth-email').val(), pass: $('#auth-pass').val(),pass2: $('#auth-pass2').val()})
+          .done(function( data ) {
+            if (data==1) {
+              login=1;
+            }
+          });
+          
+          if (login==0) {
+            $('#auth-email').css('border-color','red');
+          } else {
+            $('.fetch-reg2').show();
+            $('.fetch-ent2').hide();
+          }
+          return false;
+        });
+        
+        
     },
     checkboxed: function(el){
         $(el).parent().removeClass('checked');
@@ -27,25 +82,7 @@ $(function(){
       $('input[name='+ name +']').parent().removeClass('checked');
       if($(el).is(':checked')){
         $(el).parent().addClass('checked');
-        if($('.profile-form').length > 0 && $('.subscr-price').length > 0){
-          console.log($(el).parent().siblings('.subscr-price'));
-          $('.subscr-price').removeClass('black');
-          $(el).parent().siblings('.subscr-price').addClass('black')
-        }
       }
-    },
-    checkAuthFormInputs: function(){
-      var i = 0;
-      $('.modal-auth input').each(function(){
-        if($(this).val().length > 0){
-          i++;
-        }
-        if(i ==$('.modal-auth input').length){
-          $('.btn-disabled', '.modal-auth').removeClass('btn-disabled').removeAttr('disabled');
-        }else{
-          $('.auth-btn', '.modal-auth').addClass('btn-disabled').attr('disabled','disabled');
-        }
-      });
     },
     accordionHeadingClass: function(){
       $('#acc-func').on('hide.bs.collapse', function (e) {
